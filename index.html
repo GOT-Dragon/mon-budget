@@ -245,8 +245,8 @@ function injectMaiData(){
 
 function initSelectors(){
   const yr=new Date().getFullYear();
-  ["sm","em"].forEach(id=>{const s=document.getElementById(id);MONTHS.forEach((m,i)=>s.innerHTML+=`<option value="${i}"${i===5?" selected":""}>` +m+ `</option>`)});
-  ["sy","ey"].forEach(id=>{const s=document.getElementById(id);for(let y=2026;y<=yr+2;y++)s.innerHTML+=`<option value="${y}" selected>${y}</option>`});
+  ["sm","em"].forEach(id=>{const s=document.getElementById(id);MONTHS.forEach((m,i)=>s.innerHTML+=`<option value="${i}"${i===4?" selected":""}>` +m+ `</option>`)});
+  ["sy","ey"].forEach(id=>{const s=document.getElementById(id);for(let y=2026;y<=yr+2;y++)s.innerHTML+=`<option value="${y}"${y===2026?" selected":""}>${y}</option>`});
 }
 
 function setMode(m){
