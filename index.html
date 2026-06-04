@@ -66,20 +66,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .val-empty{color:#ccc!important;font-weight:400!important}
 .entries-wrap{margin-top:8px;border-top:1px solid #f0efe8;padding-top:6px}
 .entries-title{font-size:11px;color:#aaa;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.03em}
-.entry-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #f8f8f5}
+.entry-row{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid #f8f8f5;cursor:pointer;border-radius:6px;transition:background 0.15s}
+.entry-row:hover{background:#f5f5f0}
 .entry-row:last-child{border:none}
 .entry-info{color:#888;font-size:11px;flex:1}
+.entry-tap-hint{font-size:10px;color:#ccc;margin-left:4px}
 .entry-channel{font-size:10px;padding:2px 6px;border-radius:6px;margin:0 5px;flex-shrink:0}
 .ch-magasin{background:#e6f1fb;color:#185fa5}
 .ch-online{background:#faeeda;color:#854f0b}
 .entry-amt{font-weight:600;color:#1a1a18;font-size:12px;margin-right:2px}
-.entry-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0 3px}
+.entry-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;padding:0 4px;flex-shrink:0}
+.entry-del:hover{color:#e24b4a}
 .multi-note{text-align:center;font-size:12px;color:#888;padding:8px 12px;background:#f0f0eb;border-radius:8px;margin-bottom:10px}
 .modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .modal-bg.open{display:flex}
 .modal{background:white;border-radius:20px 20px 0 0;padding:20px 20px 36px;width:100%;max-width:430px}
 .modal-handle{width:36px;height:4px;background:#e0dfd8;border-radius:2px;margin:0 auto 16px}
 .modal-title{font-size:16px;font-weight:600;margin-bottom:16px;color:#1a1a18}
+.modal-subtitle{font-size:12px;color:#888;margin-top:-10px;margin-bottom:14px}
 .modal-field{margin-bottom:13px}
 .modal-field label{display:block;font-size:12px;color:#888;margin-bottom:5px;font-weight:500}
 .modal-field select,.modal-field input{width:100%;padding:11px 12px;border:1px solid #e0dfd8;border-radius:10px;font-size:15px;background:white;color:#1a1a18;-webkit-appearance:none}
@@ -89,7 +93,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ch-btn.active-onl{background:#faeeda;border-color:#ba7517;color:#854f0b}
 .modal-btns{display:flex;gap:10px;margin-top:6px}
 .btn-cancel{flex:1;padding:13px;border:1px solid #e0dfd8;border-radius:12px;background:none;font-size:15px;cursor:pointer;color:#888}
-.btn-add{flex:2;padding:13px;border:none;border-radius:12px;background:#378add;color:white;font-size:15px;font-weight:600;cursor:pointer}
+.btn-save{flex:2;padding:13px;border:none;border-radius:12px;background:#378add;color:white;font-size:15px;font-weight:600;cursor:pointer}
+.btn-delete{padding:13px 18px;border:none;border-radius:12px;background:#fcebeb;color:#e24b4a;font-size:15px;font-weight:600;cursor:pointer}
 .fab{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#378add;color:white;border:none;border-radius:28px;padding:15px 36px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(55,138,221,0.35);white-space:nowrap;z-index:50}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1a18;color:white;padding:9px 18px;border-radius:20px;font-size:13px;display:none;z-index:200;white-space:nowrap}
 .toast.show{display:block}
@@ -112,7 +117,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <button class="mode-btn" id="mode-multi" onclick="setMode('multi')">Période</button>
     </div>
   </div>
-
   <div id="nav-single" class="period-bar">
     <div class="month-nav">
       <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
@@ -120,7 +124,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <button class="month-btn" onclick="changeMonth(1)">&#8594;</button>
     </div>
   </div>
-
   <div id="nav-multi" class="period-bar" style="display:none">
     <div class="multi-nav">
       <span>De</span>
@@ -131,7 +134,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <select id="ey" onchange="render(getRange())"></select>
     </div>
   </div>
-
   <div class="summary-bar">
     <div class="summary-grid">
       <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">5 catégories</div></div>
@@ -143,7 +145,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
       <div class="eco-val" id="s-eco" style="color:#1d9e75">+ 860 €</div>
     </div>
   </div>
-
   <div id="chart-card" class="chart-card" style="display:none">
     <div class="chart-header">
       <span class="chart-title">Évolution mensuelle</span>
@@ -154,15 +155,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
     <div class="chart-wrap"><canvas id="evo-chart"></canvas></div>
   </div>
-
   <div class="cats" id="cats-container"></div>
 </div>
 
+<!-- Modal ajout / modification -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Ajouter une dépense</div>
+    <div class="modal-title" id="modal-title">Ajouter une dépense</div>
+    <div class="modal-subtitle" id="modal-subtitle" style="display:none">Appuyez sur Supprimer pour effacer cette entrée</div>
     <div class="modal-field">
+      <label>Montant (€)</label>
+      <input type="number" id="modal-amount" placeholder="0.00" min="0" step="0.5" inputmode="decimal">
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <input type="text" id="modal-desc" placeholder="ex: Zara, restaurant...">
+    </div>
+    <div class="modal-field" id="field-cat">
       <label>Catégorie</label>
       <select id="modal-cat">
         <option value="">Choisir...</option>
@@ -182,29 +192,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         </optgroup>
       </select>
     </div>
-    <div class="modal-field">
-      <label>Montant (€)</label>
-      <input type="number" id="modal-amount" placeholder="0.00" min="0" step="0.5" inputmode="decimal">
-    </div>
-    <div class="modal-field">
+    <div class="modal-field" id="field-canal">
       <label>Achat en</label>
       <div class="channel-btns">
         <button class="ch-btn active-mag" id="ch-mag" onclick="setChannel('magasin')">Magasin</button>
         <button class="ch-btn" id="ch-onl" onclick="setChannel('online')">En ligne / Amazon</button>
       </div>
     </div>
-    <div class="modal-field">
-      <label>Description (optionnel)</label>
-      <input type="text" id="modal-desc" placeholder="ex: Zara, restaurant...">
-    </div>
-    <div class="modal-btns">
+    <div class="modal-btns" id="modal-btns-add">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-add" onclick="addExpense()">Ajouter</button>
+      <button class="btn-save" onclick="addExpense()">Ajouter</button>
+    </div>
+    <div class="modal-btns" id="modal-btns-edit" style="display:none">
+      <button class="btn-delete" onclick="deleteFromEdit()">Supprimer</button>
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" onclick="saveEdit()">Enregistrer</button>
     </div>
   </div>
 </div>
 
-<button class="fab" onclick="openModal()">+ Ajouter une dépense</button>
+<button class="fab" onclick="openAddModal()">+ Ajouter une dépense</button>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -219,8 +226,8 @@ const CATS=[
   {id:"fdj",label:"FDJ / Jeux",budget:20,subs:[{name:"Jeux",cats:["fdj"]}]},
   {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]}
 ];
-// Mois courant = juin 2026
 let mode="single",curM=5,curY=2026,channel="magasin",chart=null;
+let editM=null,editY=null,editIdx=null;
 
 function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}}
 function load(key){try{const d=localStorage.getItem(key);return d?JSON.parse(d):null}catch(e){return null}}
@@ -229,18 +236,16 @@ function getEntries(m,y){return load(monthKey(m,y))||[]}
 function saveEntries(m,y,entries){save(monthKey(m,y),entries)}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
 
-// Injection données mai (mois JS=4)
 function injectMaiData(){
   const key=monthKey(4,2026);
   if(!localStorage.getItem(key)){
-    const mai=[{"categorie": "divers", "montant": 4.0, "canal": "magasin", "description": "Muguet", "date_achat": "01/05/2026"}, {"categorie": "resto", "montant": 82.0, "canal": "magasin", "description": "Chateau des iles", "date_achat": "04/05/2026"}, {"categorie": "deco", "montant": 42.0, "canal": "magasin", "description": "deco", "date_achat": "04/05/2026"}, {"categorie": "sortie", "montant": 26.0, "canal": "magasin", "description": "Friandises Cin\u00e9ma", "date_achat": "16/05/2026"}, {"categorie": "deco", "montant": 52.0, "canal": "magasin", "description": "Table et grillage terrasse", "date_achat": "16/05/2026"}, {"categorie": "divers", "montant": 38.98, "canal": "online", "description": "divers", "date_achat": "18/05/2026"}, {"categorie": "vet-lina", "montant": 40.0, "canal": "magasin", "description": "Chaussures", "date_achat": "23/05/2026"}, {"categorie": "divers", "montant": 15.0, "canal": "magasin", "description": "Cadeau Jun", "date_achat": "28/05/2026"}, {"categorie": "divers", "montant": 65.0, "canal": "magasin", "description": "divers", "date_achat": "31/05/2026"}];
-    save(key,mai);
+    save(key,[{"categorie": "divers", "montant": 4.0, "canal": "magasin", "description": "Muguet", "date_achat": "01/05/2026"}, {"categorie": "resto", "montant": 82.0, "canal": "magasin", "description": "Chateau des iles", "date_achat": "04/05/2026"}, {"categorie": "deco", "montant": 42.0, "canal": "magasin", "description": "deco", "date_achat": "04/05/2026"}, {"categorie": "sortie", "montant": 26.0, "canal": "magasin", "description": "Friandises Cin\u00e9ma", "date_achat": "16/05/2026"}, {"categorie": "deco", "montant": 52.0, "canal": "magasin", "description": "Table et grillage terrasse", "date_achat": "16/05/2026"}, {"categorie": "divers", "montant": 38.98, "canal": "online", "description": "divers", "date_achat": "18/05/2026"}, {"categorie": "vet-lina", "montant": 40.0, "canal": "magasin", "description": "Chaussures", "date_achat": "23/05/2026"}, {"categorie": "divers", "montant": 15.0, "canal": "magasin", "description": "Cadeau Jun", "date_achat": "28/05/2026"}, {"categorie": "divers", "montant": 65.0, "canal": "magasin", "description": "divers", "date_achat": "31/05/2026"}]);
   }
 }
 
 function initSelectors(){
   const yr=new Date().getFullYear();
-  ["sm","em"].forEach(id=>{const s=document.getElementById(id);MONTHS.forEach((m,i)=>s.innerHTML+=`<option value="${i}"${i===5?" selected":""}>{m}</option>`)});
+  ["sm","em"].forEach(id=>{const s=document.getElementById(id);MONTHS.forEach((m,i)=>s.innerHTML+=`<option value="${i}"${i===5?" selected":""}>` +m+ `</option>`)});
   ["sy","ey"].forEach(id=>{const s=document.getElementById(id);for(let y=2026;y<=yr+2;y++)s.innerHTML+=`<option value="${y}" selected>${y}</option>`});
 }
 
@@ -356,11 +361,16 @@ function render(range){
     if(mode==="single"){
       const ce=allEntries.filter(e=>catKeys.includes(e.categorie));
       if(ce.length>0){
-        html+=`<div class="entries-wrap"><div class="entries-title">Détail</div>`;
+        html+=`<div class="entries-wrap"><div class="entries-title">Détail — appuyer pour modifier</div>`;
         ce.forEach(e=>{
           const cc=e.canal==="online"?"ch-online":"ch-magasin";
           const cl=e.canal==="online"?"En ligne":"Magasin";
-          html+=`<div class="entry-row"><span class="entry-info">${e.date_achat} — ${e.description}</span><span class="entry-channel ${cc}">${cl}</span><span class="entry-amt">${parseFloat(e.montant).toFixed(0)} €</span><button class="entry-del" onclick="deleteEntry(${e._m},${e._y},${e._idx})">×</button></div>`;
+          html+=`<div class="entry-row" onclick="openEditModal(${e._m},${e._y},${e._idx})">
+            <span class="entry-info">${e.date_achat} — ${e.description}</span>
+            <span class="entry-channel ${cc}">${cl}</span>
+            <span class="entry-amt">${parseFloat(e.montant).toFixed(0)} €</span>
+            <span style="color:#aaa;font-size:12px">✎</span>
+          </div>`;
         });
         html+=`</div>`;
       }
@@ -375,15 +385,42 @@ function setChannel(c){
   document.getElementById("ch-mag").className="ch-btn"+(c==="magasin"?" active-mag":"");
   document.getElementById("ch-onl").className="ch-btn"+(c==="online"?" active-onl":"");
 }
-function openModal(){
+
+function openAddModal(){
   if(mode==="multi"){toast("Repassez en vue Mois pour saisir");return}
-  document.getElementById("modal").classList.add("open");
+  editM=null;editY=null;editIdx=null;
+  document.getElementById("modal-title").textContent="Ajouter une dépense";
+  document.getElementById("modal-subtitle").style.display="none";
+  document.getElementById("field-cat").style.display="block";
+  document.getElementById("field-canal").style.display="block";
+  document.getElementById("modal-btns-add").style.display="flex";
+  document.getElementById("modal-btns-edit").style.display="none";
   document.getElementById("modal-amount").value="";
   document.getElementById("modal-desc").value="";
   document.getElementById("modal-cat").value="";
   setChannel("magasin");
+  document.getElementById("modal").classList.add("open");
   setTimeout(()=>document.getElementById("modal-amount").focus(),300);
 }
+
+function openEditModal(m,y,idx){
+  if(mode==="multi") return;
+  const entries=getEntries(m,y);
+  const e=entries[idx];
+  if(!e) return;
+  editM=m;editY=y;editIdx=idx;
+  document.getElementById("modal-title").textContent="Modifier la dépense";
+  document.getElementById("modal-subtitle").style.display="block";
+  document.getElementById("field-cat").style.display="none";
+  document.getElementById("field-canal").style.display="none";
+  document.getElementById("modal-btns-add").style.display="none";
+  document.getElementById("modal-btns-edit").style.display="flex";
+  document.getElementById("modal-amount").value=e.montant;
+  document.getElementById("modal-desc").value=e.description;
+  document.getElementById("modal").classList.add("open");
+  setTimeout(()=>document.getElementById("modal-amount").focus(),300);
+}
+
 function closeModal(){document.getElementById("modal").classList.remove("open")}
 document.getElementById("modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
 
@@ -399,12 +436,23 @@ function addExpense(){
   closeModal();toast("Dépense enregistrée !");render(getRange());
 }
 
-function deleteEntry(m,y,idx){
+function saveEdit(){
+  const amt=parseFloat(document.getElementById("modal-amount").value);
+  const desc=document.getElementById("modal-desc").value.trim();
+  if(!amt||amt<=0){toast("Entrez un montant valide");return}
+  const entries=getEntries(editM,editY);
+  entries[editIdx].montant=amt;
+  entries[editIdx].description=desc||entries[editIdx].categorie;
+  saveEntries(editM,editY,entries);
+  closeModal();toast("Modifiée !");render(getRange());
+}
+
+function deleteFromEdit(){
   if(!confirm("Supprimer cette dépense ?")) return;
-  const entries=getEntries(m,y);
-  entries.splice(idx,1);
-  saveEntries(m,y,entries);
-  toast("Supprimée");render(getRange());
+  const entries=getEntries(editM,editY);
+  entries.splice(editIdx,1);
+  saveEntries(editM,editY,entries);
+  closeModal();toast("Supprimée");render(getRange());
 }
 
 injectMaiData();
