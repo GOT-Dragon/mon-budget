@@ -17,6 +17,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .period-mode{display:flex;background:#f5f5f0;border-radius:8px;padding:2px}
 .mode-btn{padding:5px 12px;border:none;background:none;border-radius:6px;font-size:12px;cursor:pointer;color:#888;font-weight:500}
 .mode-btn.active{background:white;color:#1a1a18;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.tab-bar{display:flex;background:white;border-bottom:1px solid rgba(0,0,0,0.08)}
+.tab-btn{flex:1;padding:12px 0;text-align:center;font-size:14px;font-weight:500;color:#888;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s}
+.tab-btn.active{color:#378add;border-bottom-color:#378add}
+.tab-btn.active-vac{color:#e8820c;border-bottom-color:#e8820c}
 .period-bar{padding:10px 16px;background:white;border-bottom:1px solid rgba(0,0,0,0.08)}
 .month-nav{display:flex;align-items:center;justify-content:space-between;width:100%}
 .month-btn{background:none;border:1px solid #e0dfd8;border-radius:8px;padding:5px 14px;font-size:14px;cursor:pointer;color:#666}
@@ -30,7 +34,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .sum-label{font-size:11px;color:#888;margin-bottom:3px}
 .sum-val{font-size:19px;font-weight:600}
 .sum-note{font-size:10px;color:#aaa;margin-top:2px}
-.eco-banner{background:#f0faf4;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border:1px solid #c0e8ce}
+.eco-banner{border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.eco-banner.green{background:#f0faf4;border:1px solid #c0e8ce}
+.eco-banner.orange{background:#fff7ee;border:1px solid #fcd5a0}
 .eco-left-label{font-size:12px;color:#555;margin-bottom:2px}
 .eco-sub{font-size:10px;color:#888}
 .eco-val{font-size:17px;font-weight:600}
@@ -75,6 +81,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .ch-online{background:#faeeda;color:#854f0b}
 .entry-amt{font-weight:600;color:#1a1a18;font-size:12px;margin-right:2px}
 .multi-note{text-align:center;font-size:12px;color:#888;padding:8px 12px;background:#f0f0eb;border-radius:8px;margin-bottom:10px}
+.vac-annual{margin:0 12px 10px;background:white;border:1px solid #fcd5a0;border-radius:14px;padding:14px}
+.vac-annual-title{font-size:13px;font-weight:600;color:#854f0b;margin-bottom:12px}
+.vac-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.vac-card{background:#fff7ee;border-radius:10px;padding:10px;text-align:center}
+.vac-label{font-size:11px;color:#854f0b;margin-bottom:3px}
+.vac-val{font-size:18px;font-weight:600}
 .modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .modal-bg.open{display:flex}
 .modal{background:white;border-radius:20px 20px 0 0;padding:20px 20px 36px;width:100%;max-width:430px}
@@ -93,6 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .btn-save{flex:2;padding:13px;border:none;border-radius:12px;background:#378add;color:white;font-size:15px;font-weight:600;cursor:pointer}
 .btn-delete{padding:13px 18px;border:none;border-radius:12px;background:#fcebeb;color:#e24b4a;font-size:15px;font-weight:600;cursor:pointer}
 .fab{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#378add;color:white;border:none;border-radius:28px;padding:15px 36px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(55,138,221,0.35);white-space:nowrap;z-index:50}
+.fab.vac{background:#e8820c;box-shadow:0 4px 16px rgba(232,130,12,0.35)}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1a18;color:white;padding:9px 18px;border-radius:20px;font-size:13px;display:none;z-index:200;white-space:nowrap}
 .toast.show{display:block}
 </style>
@@ -104,14 +117,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div style="font-family:-apple-system,sans-serif;font-size:14px;color:rgba(255,255,255,0.6);margin-top:8px">par GOT-Dragon</div>
 </div>
 <script>setTimeout(function(){var s=document.getElementById("splash");s.style.opacity="0";setTimeout(function(){s.style.display="none"},600)},3000);</script>
+
 <div class="app">
   <div class="header">
     <span class="header-title">Mon Budget</span>
+    <span id="rollback-btn" onclick="showRollback()" style="display:none;font-size:11px;color:#e24b4a;cursor:pointer;margin-left:8px">↩ Restaurer</span>
     <div class="period-mode">
       <button class="mode-btn active" id="mode-single" onclick="setMode('single')">Mois</button>
       <button class="mode-btn" id="mode-multi" onclick="setMode('multi')">Période</button>
     </div>
   </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-budget" onclick="setTab('budget')">Budget courant</button>
+    <button class="tab-btn" id="tab-vacances" onclick="setTab('vacances')">Vacances 🏖️</button>
+  </div>
+
   <div id="nav-single" class="period-bar">
     <div class="month-nav">
       <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
@@ -122,43 +143,81 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div id="nav-multi" class="period-bar" style="display:none">
     <div class="multi-nav">
       <span>De</span>
-      <select id="sm" onchange="render(getRange())"></select>
-      <select id="sy" onchange="render(getRange())"></select>
+      <select id="sm" onchange="renderCurrent()"></select>
+      <select id="sy" onchange="renderCurrent()"></select>
       <span>à</span>
-      <select id="em" onchange="render(getRange())"></select>
-      <select id="ey" onchange="render(getRange())"></select>
+      <select id="em" onchange="renderCurrent()"></select>
+      <select id="ey" onchange="renderCurrent()"></select>
     </div>
   </div>
-  <div class="summary-bar">
-    <div class="summary-grid">
-      <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">820 €</div><div class="sum-note" id="s-note">6 catégories</div></div>
-      <div class="sum-card"><div class="sum-label">Dépensé</div><div class="sum-val" id="s-spent">0 €</div></div>
-      <div class="sum-card"><div class="sum-label">Restant</div><div class="sum-val" id="s-left" style="color:#1d9e75">820 €</div></div>
-    </div>
-    <div class="eco-banner">
-      <div><div class="eco-left-label">Économie vs avant</div><div class="eco-sub" id="s-eco-sub">Base hors vacances : ~860 €/mois</div></div>
-      <div class="eco-val" id="s-eco" style="color:#1d9e75">+ 1260 €</div>
-    </div>
-  </div>
-  <div id="chart-card" class="chart-card" style="display:none">
-    <div class="chart-header">
-      <span class="chart-title">Évolution mensuelle</span>
-      <div class="chart-legend">
-        <span class="leg-item"><span class="leg-box" style="background:#378add"></span>Dépenses</span>
-        <span class="leg-item"><span class="leg-box" style="background:#e24b4a;opacity:0.6"></span>Plafond</span>
+
+  <div id="view-budget">
+    <div class="summary-bar">
+      <div class="summary-grid">
+        <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">5 catégories</div></div>
+        <div class="sum-card"><div class="sum-label">Dépensé</div><div class="sum-val" id="s-spent">0 €</div></div>
+        <div class="sum-card"><div class="sum-label">Restant</div><div class="sum-val" id="s-left" style="color:#1d9e75">420 €</div></div>
+      </div>
+      <div class="eco-banner green">
+        <div><div class="eco-left-label">Économie vs avant</div><div class="eco-sub" id="s-eco-sub">Base hors vacances : ~860 €/mois</div></div>
+        <div class="eco-val" id="s-eco" style="color:#1d9e75">+ 860 €</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="evo-chart"></canvas></div>
+    <div id="chart-card-budget" class="chart-card" style="display:none">
+      <div class="chart-header">
+        <span class="chart-title">Évolution mensuelle</span>
+        <div class="chart-legend">
+          <span class="leg-item"><span class="leg-box" style="background:#378add"></span>Dépenses</span>
+          <span class="leg-item"><span class="leg-box" style="background:#e24b4a;opacity:0.6"></span>Plafond</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="evo-chart-budget"></canvas></div>
+    </div>
+    <div class="cats" id="cats-container"></div>
   </div>
-  <div class="cats" id="cats-container"></div>
+
+  <div id="view-vacances" style="display:none">
+    <div class="summary-bar">
+      <div class="summary-grid">
+        <div class="sum-card"><div class="sum-label">Budget annuel</div><div class="sum-val" id="v-annual" style="color:#e8820c">6 000 €</div><div class="sum-note">500 € × 12 mois</div></div>
+        <div class="sum-card"><div class="sum-label">Dépensé</div><div class="sum-val" id="v-spent">0 €</div></div>
+        <div class="sum-card"><div class="sum-label">Restant</div><div class="sum-val" id="v-left" style="color:#1d9e75">6 000 €</div></div>
+      </div>
+      <div class="eco-banner orange">
+        <div><div class="eco-left-label">Budget mensuel</div><div class="eco-sub" id="v-month-label">Ce mois-ci</div></div>
+        <div>
+          <div class="eco-val" id="v-month-spent" style="color:#e8820c">0 €</div>
+          <div style="font-size:10px;color:#888;text-align:right" id="v-month-restant">/ 500 €</div>
+        </div>
+      </div>
+    </div>
+    <div id="chart-card-vac" class="chart-card" style="display:none">
+      <div class="chart-header">
+        <span class="chart-title">Vacances — évolution mensuelle</span>
+        <div class="chart-legend">
+          <span class="leg-item"><span class="leg-box" style="background:#e8820c"></span>Dépenses</span>
+          <span class="leg-item"><span class="leg-box" style="background:#e24b4a;opacity:0.6"></span>Plafond 500€</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="evo-chart-vac"></canvas></div>
+    </div>
+    <div class="vac-annual">
+      <div class="vac-annual-title">Progression annuelle 2026</div>
+      <div class="prog-labels"><span id="v-pct-label">0 € dépensés</span><span id="v-pct">0%</span></div>
+      <div class="prog-bg" style="margin-bottom:8px"><div class="prog-fill" id="v-annual-bar" style="width:0%;background:#e8820c"></div></div>
+      <div style="font-size:11px;color:#888;text-align:right" id="v-annual-note">sur 6 000 € annuels</div>
+    </div>
+    <div class="cats" id="vac-container"></div>
+  </div>
 </div>
+
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">Ajouter une dépense</div>
     <div class="modal-subtitle" id="modal-subtitle" style="display:none">Appuyez sur Supprimer pour effacer</div>
     <div class="modal-field"><label>Montant (€)</label><input type="number" id="modal-amount" placeholder="0.00" min="0" step="0.5" inputmode="decimal"></div>
-    <div class="modal-field"><label>Description</label><input type="text" id="modal-desc" placeholder="ex: restaurant, Amazon..."></div>
+    <div class="modal-field"><label>Description</label><input type="text" id="modal-desc" placeholder="ex: restaurant, hôtel..."></div>
     <div class="modal-field" id="field-cat">
       <label>Catégorie</label>
       <select id="modal-cat">
@@ -178,7 +237,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <optgroup label="Autres">
           <option value="fdj">FDJ / jeux</option>
           <option value="hellofresh">Hellofresh</option>
-          <option value="vacances">Vacances 🏖️</option>
         </optgroup>
       </select>
     </div>
@@ -200,43 +258,130 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
 </div>
-<button class="fab" onclick="openAddModal()">+ Ajouter une dépense</button>
+
+<button class="fab" id="fab-btn" onclick="openAddModal()">+ Ajouter une dépense</button>
 <div class="toast" id="toast"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 var MONTHS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var MS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
-var BASE=860;
-var BDGT=820;
+var BASE=860, BDGT=420, VAC_MONTH=500, VAC_ANNUAL=6000;
 var CATS=[
   {id:"sorties",label:"Sorties & loisirs",budget:100,subs:[{name:"Restaurants",cats:["resto"]},{name:"Sorties / loisirs",cats:["sortie"]}]},
   {id:"vet",label:"Vêtements & achats divers",budget:100,subs:[{name:"Vêtements perso",cats:["vet-perso"]},{name:"Vêtements Lina",cats:["vet-lina"]},{name:"Achats divers",cats:["divers"]}]},
   {id:"deco",label:"Déco maison",budget:30,subs:[{name:"Déco / Brico",cats:["deco"]}]},
   {id:"fdj",label:"FDJ / Jeux",budget:20,subs:[{name:"Jeux",cats:["fdj"]}]},
-  {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]},
-  {id:"vacances",label:"Vacances 🏖️",budget:400,subs:[{name:"Dépenses vacances",cats:["vacances"]}]}
+  {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]}
 ];
-var now=new Date(),mode="single",curM=now.getMonth(),curY=now.getFullYear(),channel="magasin",chart=null;
-var editM=null,editY=null,editIdx=null;
+var now=new Date(),mode="single",curM=now.getMonth(),curY=now.getFullYear();
+var currentTab="budget",channel="magasin",chartBudget=null,chartVac=null;
+var editM=null,editY=null,editIdx=null,editTab=null;
 
-function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}}
-function load(key){try{var d=localStorage.getItem(key);return d?JSON.parse(d):null}catch(e){return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function load(k){try{var d=localStorage.getItem(k);return d?JSON.parse(d):null}catch(e){return null}}
 function monthKey(m,y){return "budget_"+y+"_"+m}
+function vacKey(m,y){return "vac_"+y+"_"+m}
 function getEntries(m,y){return load(monthKey(m,y))||[]}
+function getVacEntries(m,y){return load(vacKey(m,y))||[]}
 function saveEntries(m,y,e){save(monthKey(m,y),e)}
+function saveVacEntries(m,y,e){save(vacKey(m,y),e)}
 function toast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2500)}
+
+
+function backupAll(){
+  // Sauvegarde complète de toutes les données avant migration
+  var backup={};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k && (k.indexOf('budget_')===0 || k.indexOf('vac_')===0)){
+      backup[k]=localStorage.getItem(k);
+    }
+  }
+  localStorage.setItem('vac_migration_backup', JSON.stringify(backup));
+  localStorage.setItem('vac_migration_backup_date', new Date().toLocaleString('fr-FR'));
+  return Object.keys(backup).length;
+}
+
+function rollbackMigration(){
+  var backup=localStorage.getItem('vac_migration_backup');
+  if(!backup){alert('Aucune sauvegarde disponible.');return;}
+  if(!confirm('Restaurer toutes les données avant la migration ?')) return;
+  var data=JSON.parse(backup);
+  // Supprimer les clés vac_ créées par la migration
+  var toDelete=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k && k.indexOf('vac_')===0 && k!=='vac_migration_backup' && k!=='vac_migration_backup_date') toDelete.push(k);
+  }
+  toDelete.forEach(function(k){localStorage.removeItem(k)});
+  // Restaurer les données sauvegardées
+  Object.keys(data).forEach(function(k){localStorage.setItem(k,data[k])});
+  // Réinitialiser le flag de migration
+  localStorage.removeItem('vac_migration_done');
+  toast('Données restaurées avec succès !');
+  setTimeout(function(){location.reload()},1500);
+}
+
+function migrateVacances(){
+  if(localStorage.getItem('vac_migration_done')) return;
+  // 1. Sauvegarde avant toute modification
+  var nbSaved=backupAll();
+  var migrated=0;
+  try {
+    for(var y=2026;y<=2027;y++){
+      for(var m=0;m<12;m++){
+        var key=monthKey(m,y);
+        var entries=load(key);
+        if(!entries||!entries.length) continue;
+        var vacEntries=entries.filter(function(e){return e.categorie==="vacances"});
+        var otherEntries=entries.filter(function(e){return e.categorie!=="vacances"});
+        if(vacEntries.length>0){
+          var vk=vacKey(m,y);
+          var existing=load(vk)||[];
+          var merged=existing.concat(vacEntries.map(function(e){
+            return {montant:e.montant,canal:e.canal||"magasin",description:e.description||"Vacances",date_achat:e.date_achat||"?"};
+          }));
+          save(vk,merged);
+          save(key,otherEntries);
+          migrated+=vacEntries.length;
+        }
+      }
+    }
+    localStorage.setItem('vac_migration_done','1');
+    if(migrated>0){
+      toast(migrated+' dépenses vacances migrées ! (sauvegarde disponible)');
+    }
+  } catch(err) {
+    // En cas d'erreur, rollback automatique
+    alert('Erreur lors de la migration. Restauration automatique des données...');
+    rollbackMigration();
+  }
+}
 
 function injectData(){
   var km=monthKey(4,2026);
-  if(!localStorage.getItem(km)) save(km,MAI_DATA);
+  if(!localStorage.getItem(km)) save(km,[{"categorie": "divers", "montant": 4.0, "canal": "magasin", "description": "Muguet", "date_achat": "01/05/2026"}, {"categorie": "resto", "montant": 82.0, "canal": "magasin", "description": "Chateau des iles", "date_achat": "04/05/2026"}, {"categorie": "deco", "montant": 42.0, "canal": "magasin", "description": "deco", "date_achat": "04/05/2026"}, {"categorie": "sortie", "montant": 26.0, "canal": "magasin", "description": "Friandises Cinema", "date_achat": "16/05/2026"}, {"categorie": "deco", "montant": 52.0, "canal": "magasin", "description": "Table et grillage terrasse", "date_achat": "16/05/2026"}, {"categorie": "divers", "montant": 38.98, "canal": "online", "description": "divers", "date_achat": "18/05/2026"}, {"categorie": "vet-lina", "montant": 40.0, "canal": "magasin", "description": "Chaussures", "date_achat": "23/05/2026"}, {"categorie": "divers", "montant": 15.0, "canal": "magasin", "description": "Cadeau Jun", "date_achat": "28/05/2026"}, {"categorie": "divers", "montant": 65.0, "canal": "magasin", "description": "divers", "date_achat": "31/05/2026"}]);
   var kj=monthKey(5,2026);
-  if(!localStorage.getItem(kj)) save(kj,JUIN_DATA);
+  if(!localStorage.getItem(kj)) save(kj,[{"categorie": "divers", "montant": 239.99, "canal": "online", "description": "Duolingo annuel", "date_achat": "11/06/2026"}, {"categorie": "resto", "montant": 44.8, "canal": "magasin", "description": "Le Berny", "date_achat": "06/06/2026"}, {"categorie": "resto", "montant": 86.68, "canal": "magasin", "description": "Le Parfait Gigot", "date_achat": "13/06/2026"}, {"categorie": "resto", "montant": 24.5, "canal": "magasin", "description": "Chez Vicky", "date_achat": "17/06/2026"}, {"categorie": "fdj", "montant": 25.0, "canal": "magasin", "description": "FDJ", "date_achat": "04/06/2026"}, {"categorie": "divers", "montant": 65.19, "canal": "online", "description": "Amazon", "date_achat": "04/06/2026"}, {"categorie": "divers", "montant": 42.95, "canal": "online", "description": "Fanatics sport", "date_achat": "31/05/2026"}, {"categorie": "sortie", "montant": 21.6, "canal": "online", "description": "Claude Anthropic", "date_achat": "16/06/2026"}, {"categorie": "divers", "montant": 19.99, "canal": "online", "description": "Deezer", "date_achat": "15/06/2026"}]);
 }
 
 function initSelectors(){
-  var yr=new Date().getFullYear();
-  ["sm","em"].forEach(function(id){var s=document.getElementById(id);MONTHS.forEach(function(m,i){s.innerHTML+=('<option value="'+i+'"'+(i===4?' selected':'')+'>'+m+'</option>')})});
-  ["sy","ey"].forEach(function(id){var s=document.getElementById(id);for(var y=2026;y<=yr+2;y++)s.innerHTML+=('<option value="'+y+'"'+(y===2026?' selected':'')+'>'+y+'</option>')});
+  var yr=now.getFullYear();
+  ["sm","em"].forEach(function(id){var s=document.getElementById(id);MONTHS.forEach(function(m,i){s.innerHTML+=('<option value="'+i+'"'+(i===now.getMonth()?' selected':'')+'>'+m+'</option>')})});
+  ["sy","ey"].forEach(function(id){var s=document.getElementById(id);for(var y=2026;y<=yr+2;y++)s.innerHTML+=('<option value="'+y+'"'+(y===yr?' selected':'')+'>'+y+'</option>')});
+}
+
+function setTab(tab){
+  currentTab=tab;
+  document.getElementById("tab-budget").className="tab-btn"+(tab==="budget"?" active":"");
+  document.getElementById("tab-vacances").className="tab-btn"+(tab==="vacances"?" active-vac":"");
+  document.getElementById("view-budget").style.display=tab==="budget"?"block":"none";
+  document.getElementById("view-vacances").style.display=tab==="vacances"?"block":"none";
+  var fab=document.getElementById("fab-btn");
+  fab.className="fab"+(tab==="vacances"?" vac":"");
+  fab.textContent=tab==="vacances"?"+ Dépense vacances":"+ Ajouter une dépense";
+  renderCurrent();
 }
 
 function setMode(m){
@@ -245,15 +390,16 @@ function setMode(m){
   document.getElementById("mode-multi").className="mode-btn"+(m==="multi"?" active":"");
   document.getElementById("nav-single").style.display=m==="single"?"block":"none";
   document.getElementById("nav-multi").style.display=m==="multi"?"block":"none";
-  document.getElementById("chart-card").style.display=m==="multi"?"block":"none";
-  render(getRange());
+  document.getElementById("chart-card-budget").style.display=m==="multi"?"block":"none";
+  document.getElementById("chart-card-vac").style.display=m==="multi"?"block":"none";
+  renderCurrent();
 }
 
 function changeMonth(d){
   curM+=d;
   if(curM>11){curM=0;curY++}if(curM<0){curM=11;curY--}
   document.getElementById("month-label").textContent=MONTHS[curM]+" "+curY;
-  render(getRange());
+  renderCurrent();
 }
 
 function getRange(){
@@ -267,12 +413,9 @@ function getRange(){
   return r.length?r:[{m:curM,y:curY}];
 }
 
-function getAllEntries(range){
+function getAllEntries(range,fn){
   var res=[];
-  range.forEach(function(r){
-    var ents=getEntries(r.m,r.y);
-    ents.forEach(function(e,i){res.push(Object.assign({},e,{_m:r.m,_y:r.y,_idx:i}))});
-  });
+  range.forEach(function(r){var ents=fn(r.m,r.y);ents.forEach(function(e,i){res.push(Object.assign({},e,{_m:r.m,_y:r.y,_idx:i}))})});
   return res;
 }
 
@@ -280,41 +423,23 @@ function sc(ents,cats){return ents.filter(function(e){return cats.indexOf(e.cate
 function scch(ents,cats,ch){return ents.filter(function(e){return cats.indexOf(e.categorie)>=0&&e.canal===ch}).reduce(function(s,e){return s+parseFloat(e.montant)},0)}
 function fv(v){return v>0?v.toFixed(0)+" €":'<span class="val-empty">—</span>'}
 
-function renderChart(range,allEntries){
-  var allCats=[];CATS.forEach(function(c){c.subs.forEach(function(s){s.cats.forEach(function(k){allCats.push(k)})})});
-  var labels=range.map(function(r){return MS[r.m]+" '"+String(r.y).slice(2)});
-  var data=range.map(function(r){
-    var mo=allEntries.filter(function(e){return e._m===r.m&&e._y===r.y});
-    return parseFloat(mo.filter(function(e){return allCats.indexOf(e.categorie)>=0}).reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
-  });
-  if(chart) chart.destroy();
-  var ctx=document.getElementById("evo-chart").getContext("2d");
-  chart=new Chart(ctx,{
-    type:"bar",
-    data:{labels:labels,datasets:[
-      {label:"Dépenses",data:data,backgroundColor:data.map(function(v){return v>BDGT?"#e24b4a":"#378add"}),borderRadius:5,order:2},
-      {label:"Plafond",data:range.map(function(){return BDGT}),type:"line",borderColor:"#e24b4a",borderDash:[5,4],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent",order:1}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{ticks:{font:{size:11},color:"#aaa"},grid:{display:false}},y:{ticks:{callback:function(v){return v+" €"},font:{size:10},color:"#aaa"},grid:{color:"rgba(0,0,0,0.05)"}}}
-    }
-  });
+function renderCurrent(){
+  if(currentTab==="budget") renderBudget();
+  else renderVacances();
 }
 
-function render(range){
+function renderBudget(){
+  var range=getRange();
   var nb=range.length;
-  var allEntries=getAllEntries(range);
+  var allEntries=getAllEntries(range,getEntries);
   var allCats=[];CATS.forEach(function(c){c.subs.forEach(function(s){s.cats.forEach(function(k){allCats.push(k)})})});
   var totalSpent=parseFloat(allEntries.filter(function(e){return allCats.indexOf(e.categorie)>=0}).reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
-  // Vacances exclues du calcul d'économie
-  var spentHorsVacances=parseFloat(allEntries.filter(function(e){return allCats.indexOf(e.categorie)>=0&&e.categorie!=="vacances"}).reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
   var budgetTotal=BDGT*nb;
   var left=budgetTotal-totalSpent;
-  var eco=(BASE*nb)-spentHorsVacances;
+  var eco=(BASE*nb)-totalSpent;
 
   document.getElementById("s-budget").textContent=budgetTotal+" €";
-  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"6 catégories";
+  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"5 catégories";
   document.getElementById("s-spent").textContent=totalSpent+" €";
   document.getElementById("s-spent").style.color=totalSpent>budgetTotal?"#e24b4a":"#1a1a18";
   document.getElementById("s-left").textContent=left+" €";
@@ -323,7 +448,7 @@ function render(range){
   document.getElementById("s-eco").style.color=eco>=0?"#1d9e75":"#e24b4a";
   document.getElementById("s-eco-sub").textContent=nb>1?"Base hors vacances : ~"+(BASE*nb)+" € sur "+nb+" mois":"Base hors vacances : ~"+BASE+" €/mois";
 
-  if(mode==="multi") renderChart(range,allEntries);
+  if(mode==="multi") renderChartBudget(range,allEntries);
 
   var html="";
   if(mode==="multi") html+='<div class="multi-note">Cumul sur '+nb+' mois — repassez en vue Mois pour saisir</div>';
@@ -346,10 +471,7 @@ function render(range){
     html+='<div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>';
     html+='<table class="sub-table"><thead><tr><th>Sous-catégorie</th><th>Magasin</th><th>En ligne</th><th>Total</th></tr></thead><tbody>';
     cat.subs.forEach(function(sub){
-      var mag=scch(allEntries,sub.cats,"magasin");
-      var onl=scch(allEntries,sub.cats,"online");
-      var tot=sc(allEntries,sub.cats);
-      html+='<tr><td>'+sub.name+'</td><td>'+fv(mag)+'</td><td>'+fv(onl)+'</td><td>'+fv(tot)+'</td></tr>';
+      html+='<tr><td>'+sub.name+'</td><td>'+fv(scch(allEntries,sub.cats,"magasin"))+'</td><td>'+fv(scch(allEntries,sub.cats,"online"))+'</td><td>'+fv(sc(allEntries,sub.cats))+'</td></tr>';
     });
     html+='</tbody></table>';
     if(mode==="single"){
@@ -359,7 +481,7 @@ function render(range){
         ce.forEach(function(e){
           var cc=e.canal==="online"?"ch-online":"ch-magasin";
           var cl=e.canal==="online"?"En ligne":"Magasin";
-          html+='<div class="entry-row" onclick="openEditModal('+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
+          html+='<div class="entry-row" onclick="openEditModal('budget','+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
         });
         html+='</div>';
       }
@@ -369,33 +491,136 @@ function render(range){
   document.getElementById("cats-container").innerHTML=html;
 }
 
+function renderVacances(){
+  var range=getRange();
+  var nb=range.length;
+  var allVac=getAllEntries(range,getVacEntries);
+  var totalVac=parseFloat(allVac.reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
+
+  // Calcul annuel (toute l'année en cours)
+  var annualTotal=0;
+  for(var m=0;m<12;m++){
+    var ents=getVacEntries(m,curY);
+    annualTotal+=ents.reduce(function(s,e){return s+parseFloat(e.montant)},0);
+  }
+  annualTotal=parseFloat(annualTotal.toFixed(0));
+
+  var budgetPeriod=VAC_MONTH*nb;
+  var left=budgetPeriod-totalVac;
+  var annualLeft=VAC_ANNUAL-annualTotal;
+  var annualPct=Math.min(100,Math.round(annualTotal/VAC_ANNUAL*100));
+
+  // Mois courant
+  var monthVac=sc(getAllEntries([{m:curM,y:curY}],getVacEntries),[]);
+  var mVacEnts=getVacEntries(curM,curY);
+  var mVacSpent=mVacEnts.reduce(function(s,e){return s+parseFloat(e.montant)},0);
+
+  document.getElementById("v-spent").textContent=totalVac+" €";
+  document.getElementById("v-left").textContent=annualLeft+" €";
+  document.getElementById("v-left").style.color=annualLeft>=0?"#1d9e75":"#e24b4a";
+  document.getElementById("v-month-spent").textContent=mVacSpent.toFixed(0)+" €";
+  document.getElementById("v-month-spent").style.color=mVacSpent>VAC_MONTH?"#e24b4a":"#e8820c";
+  document.getElementById("v-month-label").textContent=mode==="multi"?nb+" mois dépensés":"Ce mois-ci";
+  document.getElementById("v-month-restant").textContent="/ "+(mode==="multi"?budgetPeriod:VAC_MONTH)+" €";
+  document.getElementById("v-pct-label").textContent=annualTotal+" € dépensés en "+curY;
+  document.getElementById("v-pct").textContent=annualPct+"%";
+  document.getElementById("v-annual-bar").style.width=annualPct+"%";
+  document.getElementById("v-annual-bar").style.background=annualTotal>VAC_ANNUAL?"#e24b4a":"#e8820c";
+
+  if(mode==="multi") renderChartVac(range);
+
+  var html="";
+  if(mode==="multi") html+='<div class="multi-note">Cumul sur '+nb+' mois — repassez en vue Mois pour saisir</div>';
+
+  // Carte vacances du mois
+  var budget=VAC_MONTH*nb;
+  var spent=totalVac;
+  var pct=budget>0?Math.min(100,Math.round(spent/budget*100)):0;
+  var over=spent>budget;
+  var warn=!over&&pct>=80&&mode==="single";
+  var fc=over?"#e24b4a":warn?"#ef9f27":"#e8820c";
+
+  html+='<div class="cat-card'+(over?" over":"")+'" style="border-color:#fcd5a0">';
+  if(over) html+='<div class="alert-row"><div class="alert-dot">!</div><div class="alert-text">Budget vacances dépassé de '+((spent-budget).toFixed(0))+' €</div></div>';
+  html+='<div class="cat-header"><span class="cat-title">Dépenses vacances</span><span class="cat-badge '+(over?"badge-over":warn?"badge-warn":"badge-ok")+'">'+(over?"Dépassé !":warn?"Attention":"OK")+'</span></div>';
+  html+='<div class="prog-labels"><span>'+spent.toFixed(0)+' € / '+budget+' €</span><span>'+pct+'%</span></div>';
+  html+='<div class="prog-bg"><div class="prog-fill" style="width:'+pct+'%;background:'+fc+'"></div></div>';
+  if(mode==="single"){
+    var ve=getAllEntries([{m:curM,y:curY}],getVacEntries);
+    if(ve.length>0){
+      html+='<div class="entries-wrap"><div class="entries-title">Détail — appuyer pour modifier</div>';
+      ve.forEach(function(e){
+        var cc=e.canal==="online"?"ch-online":"ch-magasin";
+        var cl=e.canal==="online"?"En ligne":"Magasin";
+        html+='<div class="entry-row" onclick="openEditModal('vacances','+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
+      });
+      html+='</div>';
+    } else {
+      html+='<div style="text-align:center;padding:16px;font-size:13px;color:#aaa">Aucune dépense vacances ce mois</div>';
+    }
+  }
+  html+='</div>';
+  document.getElementById("vac-container").innerHTML=html;
+}
+
+function renderChartBudget(range,allEntries){
+  var allCats=[];CATS.forEach(function(c){c.subs.forEach(function(s){s.cats.forEach(function(k){allCats.push(k)})})});
+  var labels=range.map(function(r){return MS[r.m]+" '"+String(r.y).slice(2)});
+  var data=range.map(function(r){
+    var mo=allEntries.filter(function(e){return e._m===r.m&&e._y===r.y});
+    return parseFloat(mo.filter(function(e){return allCats.indexOf(e.categorie)>=0}).reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
+  });
+  if(chartBudget) chartBudget.destroy();
+  var ctx=document.getElementById("evo-chart-budget").getContext("2d");
+  chartBudget=new Chart(ctx,{type:"bar",data:{labels:labels,datasets:[
+    {label:"Dépenses",data:data,backgroundColor:data.map(function(v){return v>BDGT?"#e24b4a":"#378add"}),borderRadius:5,order:2},
+    {label:"Plafond",data:range.map(function(){return BDGT}),type:"line",borderColor:"#e24b4a",borderDash:[5,4],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent",order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:"#aaa"},grid:{display:false}},y:{ticks:{callback:function(v){return v+" €"},font:{size:10},color:"#aaa"},grid:{color:"rgba(0,0,0,0.05)"}}}}});
+}
+
+function renderChartVac(range){
+  var labels=range.map(function(r){return MS[r.m]+" '"+String(r.y).slice(2)});
+  var data=range.map(function(r){
+    var ents=getVacEntries(r.m,r.y);
+    return parseFloat(ents.reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
+  });
+  if(chartVac) chartVac.destroy();
+  var ctx=document.getElementById("evo-chart-vac").getContext("2d");
+  chartVac=new Chart(ctx,{type:"bar",data:{labels:labels,datasets:[
+    {label:"Vacances",data:data,backgroundColor:data.map(function(v){return v>VAC_MONTH?"#e24b4a":"#e8820c"}),borderRadius:5,order:2},
+    {label:"Plafond",data:range.map(function(){return VAC_MONTH}),type:"line",borderColor:"#e24b4a",borderDash:[5,4],borderWidth:1.5,pointRadius:0,backgroundColor:"transparent",order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11},color:"#aaa"},grid:{display:false}},y:{ticks:{callback:function(v){return v+" €"},font:{size:10},color:"#aaa"},grid:{color:"rgba(0,0,0,0.05)"}}}}});
+}
+
 function setChannel(c){
   channel=c;
   document.getElementById("ch-mag").className="ch-btn"+(c==="magasin"?" active-mag":"");
   document.getElementById("ch-onl").className="ch-btn"+(c==="online"?" active-onl":"");
 }
+
 function openAddModal(){
   if(mode==="multi"){toast("Repassez en vue Mois pour saisir");return}
-  editM=null;editY=null;editIdx=null;
-  document.getElementById("modal-title").textContent="Ajouter une dépense";
+  editM=null;editY=null;editIdx=null;editTab=null;
+  document.getElementById("modal-title").textContent=currentTab==="vacances"?"Ajouter une dépense vacances":"Ajouter une dépense";
   document.getElementById("modal-subtitle").style.display="none";
-  document.getElementById("field-cat").style.display="block";
+  document.getElementById("field-cat").style.display=currentTab==="budget"?"block":"none";
   document.getElementById("field-canal").style.display="block";
   document.getElementById("modal-btns-add").style.display="flex";
   document.getElementById("modal-btns-edit").style.display="none";
   document.getElementById("modal-amount").value="";
   document.getElementById("modal-desc").value="";
-  document.getElementById("modal-cat").value="";
+  if(currentTab==="budget") document.getElementById("modal-cat").value="";
   setChannel("magasin");
   document.getElementById("modal").classList.add("open");
   setTimeout(function(){document.getElementById("modal-amount").focus()},300);
 }
-function openEditModal(m,y,idx){
+
+function openEditModal(tab,m,y,idx){
   if(mode==="multi") return;
-  var entries=getEntries(m,y);
+  var entries=tab==="vacances"?getVacEntries(m,y):getEntries(m,y);
   var e=entries[idx];
   if(!e) return;
-  editM=m;editY=y;editIdx=idx;
+  editM=m;editY=y;editIdx=idx;editTab=tab;
   document.getElementById("modal-title").textContent="Modifier la dépense";
   document.getElementById("modal-subtitle").style.display="block";
   document.getElementById("field-cat").style.display="none";
@@ -407,45 +632,73 @@ function openEditModal(m,y,idx){
   document.getElementById("modal").classList.add("open");
   setTimeout(function(){document.getElementById("modal-amount").focus()},300);
 }
+
+function showRollback(){
+  var date=localStorage.getItem('vac_migration_backup_date')||'inconnue';
+  if(confirm('Restaurer les données sauvegardées le '+date+' ?\n\nCela annulera la migration et restaurera l\'état précédent.')){
+    rollbackMigration();
+  }
+}
 function closeModal(){document.getElementById("modal").classList.remove("open")}
 document.getElementById("modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
 
 function addExpense(){
-  var cat=document.getElementById("modal-cat").value;
   var amt=parseFloat(document.getElementById("modal-amount").value);
   var desc=document.getElementById("modal-desc").value.trim();
-  if(!cat){toast("Choisissez une catégorie");return}
   if(!amt||amt<=0){toast("Entrez un montant valide");return}
-  var entries=getEntries(curM,curY);
-  entries.push({categorie:cat,montant:amt,canal:channel,description:desc||cat,date_achat:new Date().toLocaleDateString("fr-FR")});
-  saveEntries(curM,curY,entries);
-  closeModal();toast("Dépense enregistrée !");render(getRange());
+  if(currentTab==="budget"){
+    var cat=document.getElementById("modal-cat").value;
+    if(!cat){toast("Choisissez une catégorie");return}
+    var entries=getEntries(curM,curY);
+    entries.push({categorie:cat,montant:amt,canal:channel,description:desc||cat,date_achat:new Date().toLocaleDateString("fr-FR")});
+    saveEntries(curM,curY,entries);
+  } else {
+    var ve=getVacEntries(curM,curY);
+    ve.push({montant:amt,canal:channel,description:desc||"Vacances",date_achat:new Date().toLocaleDateString("fr-FR")});
+    saveVacEntries(curM,curY,ve);
+  }
+  closeModal();toast("Dépense enregistrée !");renderCurrent();
 }
+
 function saveEdit(){
   var amt=parseFloat(document.getElementById("modal-amount").value);
   var desc=document.getElementById("modal-desc").value.trim();
   if(!amt||amt<=0){toast("Entrez un montant valide");return}
-  var entries=getEntries(editM,editY);
-  entries[editIdx].montant=amt;
-  entries[editIdx].description=desc||entries[editIdx].categorie;
-  saveEntries(editM,editY,entries);
-  closeModal();toast("Modifiée !");render(getRange());
+  if(editTab==="vacances"){
+    var ve=getVacEntries(editM,editY);
+    ve[editIdx].montant=amt;ve[editIdx].description=desc||ve[editIdx].description;
+    saveVacEntries(editM,editY,ve);
+  } else {
+    var entries=getEntries(editM,editY);
+    entries[editIdx].montant=amt;entries[editIdx].description=desc||entries[editIdx].description;
+    saveEntries(editM,editY,entries);
+  }
+  closeModal();toast("Modifiée !");renderCurrent();
 }
+
 function deleteFromEdit(){
   if(!confirm("Supprimer cette dépense ?")) return;
-  var entries=getEntries(editM,editY);
-  entries.splice(editIdx,1);
-  saveEntries(editM,editY,entries);
-  closeModal();toast("Supprimée");render(getRange());
+  if(editTab==="vacances"){
+    var ve=getVacEntries(editM,editY);ve.splice(editIdx,1);saveVacEntries(editM,editY,ve);
+  } else {
+    var entries=getEntries(editM,editY);entries.splice(editIdx,1);saveEntries(editM,editY,entries);
+  }
+  closeModal();toast("Supprimée");renderCurrent();
 }
 
-var MAI_DATA = [{"categorie": "divers", "montant": 4.0, "canal": "magasin", "description": "Muguet", "date_achat": "01/05/2026"}, {"categorie": "resto", "montant": 82.0, "canal": "magasin", "description": "Chateau des iles", "date_achat": "04/05/2026"}, {"categorie": "deco", "montant": 42.0, "canal": "magasin", "description": "deco", "date_achat": "04/05/2026"}, {"categorie": "sortie", "montant": 26.0, "canal": "magasin", "description": "Friandises Cin\u00e9ma", "date_achat": "16/05/2026"}, {"categorie": "deco", "montant": 52.0, "canal": "magasin", "description": "Table et grillage terrasse", "date_achat": "16/05/2026"}, {"categorie": "divers", "montant": 38.98, "canal": "online", "description": "divers", "date_achat": "18/05/2026"}, {"categorie": "vet-lina", "montant": 40.0, "canal": "magasin", "description": "Chaussures", "date_achat": "23/05/2026"}, {"categorie": "divers", "montant": 15.0, "canal": "magasin", "description": "Cadeau Jun", "date_achat": "28/05/2026"}, {"categorie": "divers", "montant": 65.0, "canal": "magasin", "description": "divers", "date_achat": "31/05/2026"}];
-var JUIN_DATA = [{"categorie": "divers", "montant": 239.99, "canal": "online", "description": "Duolingo (annuel)", "date_achat": "11/06/2026"}, {"categorie": "resto", "montant": 44.8, "canal": "magasin", "description": "Le Berny", "date_achat": "06/06/2026"}, {"categorie": "resto", "montant": 86.68, "canal": "magasin", "description": "Le Parfait Gigot", "date_achat": "13/06/2026"}, {"categorie": "resto", "montant": 24.5, "canal": "magasin", "description": "Chez Vicky", "date_achat": "17/06/2026"}, {"categorie": "fdj", "montant": 25.0, "canal": "magasin", "description": "FDJ", "date_achat": "04/06/2026"}, {"categorie": "divers", "montant": 65.19, "canal": "online", "description": "Amazon", "date_achat": "04/06/2026"}, {"categorie": "divers", "montant": 42.95, "canal": "online", "description": "Fanatics sport", "date_achat": "31/05/2026"}, {"categorie": "sortie", "montant": 21.6, "canal": "online", "description": "Claude Anthropic", "date_achat": "16/06/2026"}, {"categorie": "divers", "montant": 19.99, "canal": "online", "description": "Deezer", "date_achat": "15/06/2026"}];
-
 injectData();
+migrateVacances();
 initSelectors();
+// Afficher le bouton rollback si une sauvegarde existe
+if(localStorage.getItem('vac_migration_backup')){
+  var rb=document.getElementById('rollback-btn');
+  if(rb){
+    rb.style.display='inline';
+    rb.title='Sauvegarde du '+localStorage.getItem('vac_migration_backup_date');
+  }
+}
 document.getElementById("month-label").textContent=MONTHS[curM]+" "+curY;
-render(getRange());
+renderCurrent();
 </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js")}</script>
 </body>
