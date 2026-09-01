@@ -481,7 +481,7 @@ function renderBudget(){
         ce.forEach(function(e){
           var cc=e.canal==="online"?"ch-online":"ch-magasin";
           var cl=e.canal==="online"?"En ligne":"Magasin";
-          html+='<div class="entry-row" onclick="openEditModal('budget','+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
+          html+='<div class="entry-row" onclick="openEditModal(&apos;budget&apos;,'+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
         });
         html+='</div>';
       }
@@ -552,7 +552,7 @@ function renderVacances(){
       ve.forEach(function(e){
         var cc=e.canal==="online"?"ch-online":"ch-magasin";
         var cl=e.canal==="online"?"En ligne":"Magasin";
-        html+='<div class="entry-row" onclick="openEditModal('vacances','+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
+        html+='<div class="entry-row" onclick="openEditModal(&apos;vacances&apos;,'+e._m+','+e._y+','+e._idx+')"><span class="entry-info">'+e.date_achat+' — '+e.description+'</span><span class="entry-channel '+cc+'">'+cl+'</span><span class="entry-amt">'+parseFloat(e.montant).toFixed(0)+' €</span><span style="color:#aaa;font-size:12px">✎</span></div>';
       });
       html+='</div>';
     } else {
