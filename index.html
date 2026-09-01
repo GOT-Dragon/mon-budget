@@ -635,7 +635,7 @@ function openEditModal(tab,m,y,idx){
 
 function showRollback(){
   var date=localStorage.getItem('vac_migration_backup_date')||'inconnue';
-  if(confirm('Restaurer les données sauvegardées le '+date+' ?\n\nCela annulera la migration et restaurera l\'état précédent.')){
+  if(confirm("Restaurer les donnees sauvegardees le "+date+" ? Cela annulera la migration.")){
     rollbackMigration();
   }
 }
