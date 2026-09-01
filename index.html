@@ -115,7 +115,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div id="nav-single" class="period-bar">
     <div class="month-nav">
       <button class="month-btn" onclick="changeMonth(-1)">&#8592;</button>
-      <span class="month-label" id="month-label">Juillet 2026</span>
+      <span class="month-label" id="month-label">Mois en cours</span>
       <button class="month-btn" onclick="changeMonth(1)">&#8594;</button>
     </div>
   </div>
@@ -216,7 +216,7 @@ var CATS=[
   {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]},
   {id:"vacances",label:"Vacances 🏖️",budget:400,subs:[{name:"Dépenses vacances",cats:["vacances"]}]}
 ];
-var mode="single",curM=6,curY=2026,channel="magasin",chart=null;
+var now=new Date(),mode="single",curM=now.getMonth(),curY=now.getFullYear(),channel="magasin",chart=null;
 var editM=null,editY=null,editIdx=null;
 
 function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch(e){}}
