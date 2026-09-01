@@ -444,6 +444,7 @@ var JUIN_DATA = [{"categorie": "divers", "montant": 239.99, "canal": "online", "
 
 injectData();
 initSelectors();
+document.getElementById("month-label").textContent=MONTHS[curM]+" "+curY;
 render(getRange());
 </script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js")}</script>
