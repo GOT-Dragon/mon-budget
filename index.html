@@ -154,7 +154,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div id="view-budget">
     <div class="summary-bar">
       <div class="summary-grid">
-        <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">5 catégories</div></div>
+        <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">6 catégories</div></div>
         <div class="sum-card"><div class="sum-label">Dépensé</div><div class="sum-val" id="s-spent">0 €</div></div>
         <div class="sum-card"><div class="sum-label">Restant</div><div class="sum-val" id="s-left" style="color:#1d9e75">420 €</div></div>
       </div>
@@ -237,6 +237,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         <optgroup label="Autres">
           <option value="fdj">FDJ / jeux</option>
           <option value="hellofresh">Hellofresh</option>
+          <option value="cadeau">Cadeaux 🎁</option>
         </optgroup>
       </select>
     </div>
@@ -266,13 +267,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <script>
 var MONTHS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var MS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
-var BASE=860, BDGT=420, VAC_MONTH=500, VAC_ANNUAL=6000;
+var BASE=860, BDGT=470, VAC_MONTH=500, VAC_ANNUAL=6000;
 var CATS=[
   {id:"sorties",label:"Sorties & loisirs",budget:100,subs:[{name:"Restaurants",cats:["resto"]},{name:"Sorties / loisirs",cats:["sortie"]}]},
   {id:"vet",label:"Vêtements & achats divers",budget:100,subs:[{name:"Vêtements perso",cats:["vet-perso"]},{name:"Vêtements Lina",cats:["vet-lina"]},{name:"Achats divers",cats:["divers"]}]},
   {id:"deco",label:"Déco maison",budget:30,subs:[{name:"Déco / Brico",cats:["deco"]}]},
   {id:"fdj",label:"FDJ / Jeux",budget:20,subs:[{name:"Jeux",cats:["fdj"]}]},
-  {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]}
+  {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]},
+  {id:"cadeaux",label:"Cadeaux 🎁",budget:50,subs:[{name:"Cadeaux",cats:["cadeau"]}]}
 ];
 var now=new Date(),mode="single",curM=now.getMonth(),curY=now.getFullYear();
 var currentTab="budget",channel="magasin",chartBudget=null,chartVac=null;
@@ -439,7 +441,7 @@ function renderBudget(){
   var eco=(BASE*nb)-totalSpent;
 
   document.getElementById("s-budget").textContent=budgetTotal+" €";
-  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"5 catégories";
+  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"6 catégories";
   document.getElementById("s-spent").textContent=totalSpent+" €";
   document.getElementById("s-spent").style.color=totalSpent>budgetTotal?"#e24b4a":"#1a1a18";
   document.getElementById("s-left").textContent=left+" €";
