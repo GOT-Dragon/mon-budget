@@ -236,7 +236,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
         </optgroup>
         <optgroup label="Autres">
           <option value="fdj">FDJ / jeux</option>
-          <option value="hellofresh">Hellofresh</option>
+          <option value="voiture">Voiture 🚗</option>
           <option value="animalerie">Animalerie 🐾</option>
           <option value="ateliers">Ateliers, sorties, accessoires scolaires</option>
           <option value="cadeau">Cadeaux 🎁</option>
@@ -269,16 +269,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <script>
 var MONTHS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var MS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
-var BASE=860, BDGT=590, VAC_MONTH=500, VAC_ANNUAL=6000;
+var BASE=860, BDGT=610, VAC_MONTH=500, VAC_ANNUAL=6000;
 var CATS=[
   {id:"sorties",label:"Sorties & loisirs",budget:100,subs:[{name:"Restaurants",cats:["resto"]},{name:"Sorties / loisirs",cats:["sortie"]}]},
   {id:"vet",label:"Vêtements & achats divers",budget:100,subs:[{name:"Vêtements perso",cats:["vet-perso"]},{name:"Vêtements Lina",cats:["vet-lina"]},{name:"Achats divers",cats:["divers"]}]},
   {id:"deco",label:"Intérieur maison",budget:50,subs:[{name:"Intérieur / Brico",cats:["deco"]}]},
+  {id:"voiture",label:"Voiture 🚗",budget:200,subs:[{name:"Voiture",cats:["voiture"]}]},
   {id:"animalerie",label:"Animalerie 🐾",budget:50,subs:[{name:"Animalerie",cats:["animalerie"]}]},
   {id:"ateliers",label:"Ateliers, sorties, accessoires scolaires",budget:50,subs:[{name:"Ateliers, sorties, scolaire",cats:["ateliers"]}]},
   {id:"cadeaux",label:"Cadeaux 🎁",budget:50,subs:[{name:"Cadeaux",cats:["cadeau"]}]},
-  {id:"fdj",label:"FDJ / Jeux",budget:20,subs:[{name:"Jeux",cats:["fdj"]}]},
-  {id:"hf",label:"Hellofresh",budget:170,subs:[{name:"Livraisons",cats:["hellofresh"]}]}
+  {id:"fdj",label:"FDJ / Jeux",budget:10,subs:[{name:"Jeux",cats:["fdj"]}]}
 ];
 var now=new Date(),mode="single",curM=now.getMonth(),curY=now.getFullYear();
 var currentTab="budget",channel="magasin",chartBudget=null,chartVac=null;
