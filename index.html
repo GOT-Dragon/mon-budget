@@ -108,6 +108,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 .fab.vac{background:#e8820c;box-shadow:0 4px 16px rgba(232,130,12,0.35)}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1a1a18;color:white;padding:9px 18px;border-radius:20px;font-size:13px;display:none;z-index:200;white-space:nowrap}
 .toast.show{display:block}
+.pace-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.pace-card{background:#f5f5f0;border-radius:10px;padding:10px;text-align:center}
+.pace-val{font-size:16px;font-weight:600;margin:2px 0}
+.suggest-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.suggest-chips:empty{display:none;margin:0}
+.suggest-chip{padding:6px 12px;border:1px solid #cfe0f5;border-radius:16px;font-size:13px;background:#eef5fd;color:#185fa5;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
@@ -154,13 +160,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
   <div id="view-budget">
     <div class="summary-bar">
       <div class="summary-grid">
-        <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">8 catégories</div></div>
+        <div class="sum-card"><div class="sum-label">Plafond</div><div class="sum-val" id="s-budget" style="color:#378add">420 €</div><div class="sum-note" id="s-note">9 catégories</div></div>
         <div class="sum-card"><div class="sum-label">Dépensé</div><div class="sum-val" id="s-spent">0 €</div></div>
         <div class="sum-card"><div class="sum-label">Restant</div><div class="sum-val" id="s-left" style="color:#1d9e75">420 €</div></div>
       </div>
-      <div class="eco-banner green">
-        <div><div class="eco-left-label">Économie vs avant</div><div class="eco-sub" id="s-eco-sub">Base hors vacances : ~860 €/mois</div></div>
-        <div class="eco-val" id="s-eco" style="color:#1d9e75">+ 860 €</div>
+      <div class="eco-banner green" id="cagnotte-banner">
+        <div><div class="eco-left-label" id="s-eco-label">Cagnotte</div><div class="eco-sub" id="s-eco-sub">—</div></div>
+        <div class="eco-val" id="s-eco" style="color:#1d9e75">—</div>
+      </div>
+      <div class="pace-row">
+        <div class="pace-card"><div class="sum-label">Rythme</div><div class="pace-val" id="p-rythme">—</div><div class="sum-note" id="p-rythme-sub"></div></div>
+        <div class="pace-card"><div class="sum-label">Budget / jour</div><div class="pace-val" id="p-day">—</div><div class="sum-note" id="p-day-sub"></div></div>
+        <div class="pace-card"><div class="sum-label">Série</div><div class="pace-val" id="p-streak">0</div><div class="sum-note" id="p-streak-sub">mois sous plafond</div></div>
       </div>
     </div>
     <div id="chart-card-budget" class="chart-card" style="display:none">
@@ -217,11 +228,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     <div class="modal-title" id="modal-title">Ajouter une dépense</div>
     <div class="modal-subtitle" id="modal-subtitle" style="display:none">Appuyez sur Supprimer pour effacer</div>
     <div class="modal-field"><label>Montant (€)</label><input type="number" id="modal-amount" placeholder="0.00" min="0" step="0.5" inputmode="decimal"></div>
-    <div class="modal-field"><label>Description</label><input type="text" id="modal-desc" placeholder="ex: restaurant, hôtel..."></div>
+    <div class="modal-field"><label>Description</label><input type="text" id="modal-desc" placeholder="ex: restaurant, hôtel..." autocomplete="off"><div id="desc-suggest" class="suggest-chips"></div></div>
     <div class="modal-field" id="field-cat">
       <label>Catégorie</label>
       <select id="modal-cat">
         <option value="">Choisir...</option>
+        <optgroup label="Alimentation">
+          <option value="courses">Courses alimentaires 🛒</option>
+        </optgroup>
         <optgroup label="Sorties &amp; loisirs">
           <option value="resto">Restaurant</option>
           <option value="sortie">Sortie / loisir</option>
@@ -269,8 +283,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <script>
 var MONTHS=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 var MS=["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
-var BASE=860, BDGT=610, VAC_MONTH=500, VAC_ANNUAL=6000;
+var BDGT=1610, VAC_MONTH=500, VAC_ANNUAL=6000;
+var START={m:11,y:2026}; // début du suivi complet du budget (novembre 2026 = mois de transition)
 var CATS=[
+  {id:"courses",label:"Courses alimentaires 🛒",budget:1000,subs:[{name:"Courses alimentaires",cats:["courses"]}]},
   {id:"sorties",label:"Sorties & loisirs",budget:100,subs:[{name:"Restaurants",cats:["resto"]},{name:"Sorties / loisirs",cats:["sortie"]}]},
   {id:"vet",label:"Vêtements & achats divers",budget:100,subs:[{name:"Vêtements perso",cats:["vet-perso"]},{name:"Vêtements Lina",cats:["vet-lina"]},{name:"Achats divers",cats:["divers"]}]},
   {id:"deco",label:"Intérieur maison",budget:50,subs:[{name:"Intérieur / Brico",cats:["deco"]}]},
@@ -434,6 +450,83 @@ function renderCurrent(){
   else renderVacances();
 }
 
+function monthIndex(m,y){return y*12+m}
+function monthSpent(m,y){
+  var allCats=[];CATS.forEach(function(c){c.subs.forEach(function(s){s.cats.forEach(function(k){allCats.push(k)})})});
+  return getEntries(m,y).filter(function(e){return allCats.indexOf(e.categorie)>=0}).reduce(function(s,e){return s+parseFloat(e.montant)},0);
+}
+function fmtEur(v){var r=Math.round(v);return (r>=0?"+ ":"− ")+Math.abs(r)+" €"}
+
+function updateMotivation(range,today){
+  today=today||new Date();
+  var nowIdx=monthIndex(today.getMonth(),today.getFullYear());
+  var startIdx=monthIndex(START.m,START.y);
+  var dim=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+  var day=today.getDate();
+  var sel=range[0],selIdx=monthIndex(sel.m,sel.y);
+  var multi=range.length>1;
+
+  // 1. Cagnotte : mois termines = plafond - depense ; mois en cours = avance sur le rythme
+  var total=0,counted=0,includesCurrent=false;
+  range.forEach(function(r){
+    var idx=monthIndex(r.m,r.y);
+    if(idx<startIdx||idx>nowIdx) return;
+    var spent=monthSpent(r.m,r.y);
+    if(idx<nowIdx){total+=BDGT-spent}else{total+=BDGT*day/dim-spent;includesCurrent=true}
+    counted++;
+  });
+  var banner=document.getElementById("cagnotte-banner");
+  var ev=document.getElementById("s-eco"),el=document.getElementById("s-eco-label"),es=document.getElementById("s-eco-sub");
+  if(counted===0){
+    var allFuture=range.every(function(r){return monthIndex(r.m,r.y)>nowIdx});
+    banner.className="eco-banner green";
+    ev.textContent="—";ev.style.color="#888";
+    el.textContent=multi?"Cagnotte cumulée":"Cagnotte";
+    es.textContent=allFuture?"Mois à venir":"Comptée à partir de "+MONTHS[START.m].toLowerCase()+" "+START.y;
+  } else {
+    var pos=total>=0;
+    banner.className="eco-banner "+(pos?"green":"orange");
+    ev.textContent=fmtEur(total);ev.style.color=pos?"#1d9e75":"#e8820c";
+    el.textContent=multi?"Cagnotte cumulée":(selIdx===nowIdx?"Cagnotte à ce jour":"Cagnotte du mois");
+    es.textContent=(pos?"à virer sur le Livret A":"au-dessus du budget")+(includesCurrent?" · rythme du mois inclus":"")+(multi?" · "+counted+" mois":"");
+  }
+
+  // 2. Rythme et budget par jour (mois en cours uniquement)
+  var rt=document.getElementById("p-rythme"),rs=document.getElementById("p-rythme-sub");
+  var pd=document.getElementById("p-day"),ps=document.getElementById("p-day-sub");
+  if(!multi&&selIdx===nowIdx){
+    var spentNow=monthSpent(sel.m,sel.y);
+    var avance=BDGT*day/dim-spentNow;
+    rt.textContent=(avance>=0?"+ ":"− ")+Math.abs(Math.round(avance))+" €";
+    rt.style.color=avance>=0?"#1d9e75":"#e8820c";
+    rs.textContent=avance>=0?"en avance":"en retard";
+    var restant=BDGT-spentNow,daysLeft=dim-day+1;
+    if(restant>0){pd.textContent=Math.round(restant/daysLeft)+" €";pd.style.color="#1a1a18";ps.textContent="pour finir le mois"}
+    else{pd.textContent="0 €";pd.style.color="#e24b4a";ps.textContent="plafond atteint"}
+  } else if(!multi&&selIdx<nowIdx&&selIdx>=startIdx){
+    var sp=monthSpent(sel.m,sel.y),ok=sp<=BDGT;
+    rt.textContent=ok?"Tenu":"Dépassé";rt.style.color=ok?"#1d9e75":"#e24b4a";
+    rs.textContent=ok?"sous le plafond":"+ "+Math.round(sp-BDGT)+" €";
+    pd.textContent="—";pd.style.color="#aaa";ps.textContent="mois terminé";
+  } else {
+    rt.textContent="—";rt.style.color="#aaa";
+    rs.textContent=multi?"vue Mois":(selIdx>nowIdx?"à venir":"ancien budget");
+    pd.textContent="—";pd.style.color="#aaa";ps.textContent="";
+  }
+
+  // 3. Serie : mois termines consecutifs sous le plafond (au moins une depense saisie)
+  var streak=0;
+  for(var i=nowIdx-1;i>=startIdx;i--){
+    var mm=i%12,yy=Math.floor(i/12);
+    if(!getEntries(mm,yy).length||monthSpent(mm,yy)>BDGT) break;
+    streak++;
+  }
+  var st=document.getElementById("p-streak"),ss=document.getElementById("p-streak-sub");
+  st.textContent=streak>0?streak+" 🔥":"0";
+  st.style.color=streak>0?"#e8820c":"#aaa";
+  ss.textContent=streak>1?"mois d'affilée":"mois sous plafond";
+}
+
 function renderBudget(){
   var range=getRange();
   var nb=range.length;
@@ -442,17 +535,14 @@ function renderBudget(){
   var totalSpent=parseFloat(allEntries.filter(function(e){return allCats.indexOf(e.categorie)>=0}).reduce(function(s,e){return s+parseFloat(e.montant)},0).toFixed(0));
   var budgetTotal=BDGT*nb;
   var left=budgetTotal-totalSpent;
-  var eco=(BASE*nb)-totalSpent;
 
   document.getElementById("s-budget").textContent=budgetTotal+" €";
-  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"8 catégories";
+  document.getElementById("s-note").textContent=nb>1?nb+" mois × "+BDGT+" €":"9 catégories";
   document.getElementById("s-spent").textContent=totalSpent+" €";
   document.getElementById("s-spent").style.color=totalSpent>budgetTotal?"#e24b4a":"#1a1a18";
   document.getElementById("s-left").textContent=left+" €";
   document.getElementById("s-left").style.color=left>=0?"#1d9e75":"#e24b4a";
-  document.getElementById("s-eco").textContent=(eco>=0?"+ ":"")+eco+" €";
-  document.getElementById("s-eco").style.color=eco>=0?"#1d9e75":"#e24b4a";
-  document.getElementById("s-eco-sub").textContent=nb>1?"Base hors vacances : ~"+(BASE*nb)+" € sur "+nb+" mois":"Base hors vacances : ~"+BASE+" €/mois";
+  updateMotivation(range);
 
   if(mode==="multi") renderChartBudget(range,allEntries);
 
@@ -604,6 +694,72 @@ function setChannel(c){
   document.getElementById("ch-onl").className="ch-btn"+(c==="online"?" active-onl":"");
 }
 
+function norm(s){return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ")}
+
+function buildSuggestIndex(kind){
+  var re=kind==="vacances"?/^vac_\d{4}_\d{1,2}$/:/^budget_\d{4}_\d{1,2}$/;
+  var map={};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(!re.test(k)) continue;
+    var arr=load(k);
+    if(!arr||!arr.length) continue;
+    var parts=k.split("_"),y=parseInt(parts[1]),m=parseInt(parts[2]);
+    arr.forEach(function(e,idx){
+      var d=(e.description||"").trim();
+      if(!d||d===e.categorie||d==="Vacances") return;
+      var key=norm(d);
+      var rec=(y*12+m)*1000+idx;
+      var o=map[key];
+      if(!o) o=map[key]={label:d,count:0,cat:e.categorie,canal:e.canal,rec:-1};
+      o.count++;
+      if(rec>=o.rec){o.rec=rec;o.label=d;o.cat=e.categorie;o.canal=e.canal}
+    });
+  }
+  return map;
+}
+
+function updateSuggest(){
+  var box=document.getElementById("desc-suggest");
+  box.innerHTML="";
+  var q=norm(document.getElementById("modal-desc").value).trim();
+  if(!q) return;
+  var kind=editM!==null?editTab:currentTab;
+  var map=buildSuggestIndex(kind);
+  var list=[];
+  Object.keys(map).forEach(function(key){
+    if(key===q) return;
+    var rank=-1;
+    if(key.indexOf(q)===0) rank=0;
+    else if((" "+key.replace(/[^a-z0-9]+/g," ")).indexOf(" "+q)>=0) rank=1;
+    if(rank<0) return;
+    var o=map[key];o.rank=rank;list.push(o);
+  });
+  list.sort(function(a,b){return a.rank-b.rank||b.count-a.count||b.rec-a.rec});
+  list.slice(0,5).forEach(function(item){
+    var b=document.createElement("button");
+    b.type="button";b.className="suggest-chip";b.textContent=item.label;
+    b.onclick=function(){pickSuggest(item)};
+    box.appendChild(b);
+  });
+}
+
+function pickSuggest(item){
+  document.getElementById("modal-desc").value=item.label;
+  document.getElementById("desc-suggest").innerHTML="";
+  if(editM!==null) return;
+  if(currentTab==="budget"){
+    var sel=document.getElementById("modal-cat");
+    var known=Array.prototype.some.call(sel.options,function(o){return o.value===item.cat});
+    if(!sel.value&&item.cat&&known){
+      sel.value=item.cat;
+      if(item.canal) setChannel(item.canal);
+    }
+  } else if(item.canal){
+    setChannel(item.canal);
+  }
+}
+
 function openAddModal(){
   if(mode==="multi"){toast("Repassez en vue Mois pour saisir");return}
   editM=null;editY=null;editIdx=null;editTab=null;
@@ -645,8 +801,10 @@ function showRollback(){
     rollbackMigration();
   }
 }
-function closeModal(){document.getElementById("modal").classList.remove("open")}
+function closeModal(){document.getElementById("modal").classList.remove("open");var sb=document.getElementById("desc-suggest");if(sb)sb.innerHTML=""}
 document.getElementById("modal").addEventListener("click",function(e){if(e.target===this)closeModal()});
+document.getElementById("modal-desc").addEventListener("input",updateSuggest);
+document.getElementById("modal-desc").addEventListener("focus",updateSuggest);
 
 function addExpense(){
   var amt=parseFloat(document.getElementById("modal-amount").value);
